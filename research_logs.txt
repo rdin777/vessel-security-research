@@ -1,0 +1,6 @@
+root@138245:/home/as# strace -e trace=execve java -jar /home/as/nubank_audit/vessel/target/vessel-0.2.161.jar push --tarball "./dummy.tar; id #" repo 2>&1 | head -n 20
+execve("/usr/bin/java", ["java", "-jar", "/home/as/nubank_audit/vessel/tar"..., "push", "--tarball", "./dummy.tar; id #", "repo"], 0x7ffdb11c64c0 /* 19 vars */) = 0
+Vessel: Failed to validate "--tarball ./dummy.tar; id #": no such file or directory
++++ exited with 1 +++
+root@138245:/home/as#
+
