@@ -10,8 +10,12 @@ This repository contains a security analysis of [Vessel](https://github.com/nuba
 
 ## Technical Deep Dive
 Vessel processes container images by interacting with registries and local filesystems. During testing, it was identified that parameters like `--tarball` and `--repository` are handled in a way that allows shell metacharacters (`;`, `&`, `|`) to be interpreted by the underlying system.
+## Analysis of Validation Logic
+### Validation Analysis
+Running the tool with `strace` confirms that CLI arguments containing shell metacharacters are passed directly to the JVM:
 
-
+```text
+execve("/usr/bin/java", ["java", "-jar", "...", "push", "--tarball", "./dummy.tar; id #", "repo"]...)
 
 ### Potential Attack Vector
 If a CI/CD pipeline uses Vessel to push images based on dynamic input (e.g., branch names or pull request metadata), an attacker could trigger an RCE:
